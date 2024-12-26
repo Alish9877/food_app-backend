@@ -3,7 +3,7 @@ const { User } = require('../models');
 // Get all users (Admin only)
 const GetAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, 'username email role'); // Fetch all users with selected fields
+    const users = await User.find({}, 'username email role');
     res.send(users);
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -32,7 +32,7 @@ const UpdateUserProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { username, email },
-      { new: true, runValidators: true } // Return updated user and validate input
+      { new: true, runValidators: true }
     );
     if (!user) {
       return res.send({ error: 'User not found' });

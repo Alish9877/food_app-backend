@@ -1,33 +1,37 @@
-const router = require('express').Router();
-const controller = require('../controllers/DeliveryController');
+const router = require('express').Router()
+const { DeliveryController } = require('../controllers')
 const middleware = require('../middleware')
 
-// Admin Routes
+// Fetch all deliveries (Admin only)
 router.get(
   '/',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.GetAllDeliveries
-); // Fetch all deliveries
+  DeliveryController.GetAllDeliveries
+)
+
+// Assign meals to a delivery (Admin only)
 router.post(
   '/:deliveryId/assign',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.AssignMeals
-); // Assign meals to a delivery
+  DeliveryController.AssignMeals
+)
+
+// Update delivery status (Admin only)
 router.put(
   '/:deliveryId/status',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.UpdateDeliveryStatus
-); // Update delivery status
+  DeliveryController.UpdateDeliveryStatus
+)
 
-// User Routes
+// Fetch deliveries for a specific user
 router.get(
   '/user/:userId',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.GetUserDeliveries
-); // Fetch deliveries for a specific user
+  DeliveryController.GetUserDeliveries
+)
 
-module.exports = router;
+module.exports = router

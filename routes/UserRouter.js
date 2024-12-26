@@ -1,33 +1,37 @@
 const router = require('express').Router()
-const controller = require('../controllers/UserController')
+const { UserController } = require('../controllers')
 const middleware = require('../middleware')
 
-// Admin Routes
+// Fetch all users (Admin only)
 router.get(
   '/',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.GetAllUsers
-) // Fetch all users
+  UserController.GetAllUsers
+)
+
+// Fetch a specific user by ID (Admin only)
 router.get(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.GetUserById
-) // Fetch a specific user by ID
+  UserController.GetUserById
+)
 
-// User Routes
+// Update user profile
 router.put(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.UpdateUserProfile
-) // Update user profile
+  UserController.UpdateUserProfile
+)
+
+// Delete user account
 router.delete(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.DeleteUserAccount
-) // Delete user account
+  UserController.DeleteUserAccount
+)
 
 module.exports = router

@@ -6,10 +6,8 @@ const Register = async (req, res) => {
   try {
     const { username, email, password } = req.body
 
-    // Hash the provided password
     let passwordDigest = await middleware.hashPassword(password)
 
-    // Check if a user with the same email already exists
     let existingUser = await User.findOne({ email })
     if (existingUser) {
       return res
@@ -17,7 +15,6 @@ const Register = async (req, res) => {
         .send({ error: 'A user with that email already exists!' })
     }
 
-    // Create a new user with default 'Subscriber' role
     const user = await User.create({
       username,
       email,
@@ -35,19 +32,16 @@ const Login = async (req, res) => {
   try {
     const { email, password } = req.body
 
-    // Find user by email
     const user = await User.findOne({ email })
     if (!user) {
       return res.status(401).send({ error: 'Invalid email or password' })
     }
 
-    // Compare provided password with stored password digest
-    const matched = await middleware.comparePassword(password, user.password)
+    const matched = await middleware.comparePassword(password, user.passwordDigest)
     if (!matched) {
       return res.status(401).send({ error: 'Invalid email or password' })
     }
 
-    // Create a token payload
     const payload = { id: user._id, username: user.username, role: user.role }
     const token = middleware.createToken(payload)
 
@@ -63,19 +57,16 @@ const UpdatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body
 
-    // Find user by ID
     const user = await User.findById(req.params.user_id)
     if (!user) {
       return res.status(404).send({ error: 'User not found' })
     }
 
-    // Verify old password
     const matched = await middleware.comparePassword(oldPassword, user.password)
     if (!matched) {
       return res.status(401).send({ error: 'Old password is incorrect' })
     }
 
-    // Hash new password and update user
     const passwordDigest = await middleware.hashPassword(newPassword)
     user.password = passwordDigest
     await user.save()

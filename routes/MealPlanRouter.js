@@ -1,29 +1,35 @@
 const router = require('express').Router()
-const controller = require('../controllers/MealPlanController')
+const { MealPlanController } = require('../controllers')
 const middleware = require('../middleware')
 
-// Public Routes
-router.get('/', controller.GetMealPlans) // Fetch all meal plans
-router.get('/:id', controller.GetMealPlanById) // Fetch a meal plan by ID
+// Fetch all meal plans (Public route)
+router.get('/', MealPlanController.GetMealPlans)
 
-// Admin Routes
+// Fetch a meal plan by ID (Public route)
+router.get('/:id', MealPlanController.GetMealPlanById)
+
+// Create a new meal plan (Admin only)
 router.post(
   '/',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.CreateMealPlan
-) // Create a new meal plan
+  MealPlanController.CreateMealPlan
+)
+
+// Update an existing meal plan (Admin only)
 router.put(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.UpdateMealPlan
-) // Update an existing meal plan
+  MealPlanController.UpdateMealPlan
+)
+
+// Delete a meal plan (Admin only)
 router.delete(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.DeleteMealPlan
-) // Delete a meal plan
+  MealPlanController.DeleteMealPlan
+)
 
 module.exports = router

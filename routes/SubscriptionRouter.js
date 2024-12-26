@@ -1,42 +1,45 @@
-const router = require('express').Router();
-const controller = require('../controllers/SubscriptionController');
+const router = require('express').Router()
+const { SubscriptionController } = require('../controllers')
 const middleware = require('../middleware')
 
-// Admin Routes
+// Fetch all subscriptions (Admin only)
 router.get(
   '/',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.GetAllSubscriptions
-); // Fetch all subscriptions
+  SubscriptionController.GetAllSubscriptions
+)
 
+// Fetch subscriptions for a specific user
 router.get(
   '/user/:userId',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.GetUserSubscriptions
-); // Fetch subscriptions for a specific user
+  SubscriptionController.GetUserSubscriptions
+)
 
-// User Routes
+// Create a new subscription
 router.post(
   '/',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.CreateSubscription
-);// Create a new subscription
+  SubscriptionController.CreateSubscription
+)
 
+// Update a subscription
 router.put(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.UpdateSubscription
-); // Update a subscription
+  SubscriptionController.UpdateSubscription
+)
 
+// Cancel a subscription
 router.delete(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.CancelSubscription
-); // Cancel a subscription
+  SubscriptionController.CancelSubscription
+)
 
-module.exports = router;
+module.exports = router

@@ -1,20 +1,27 @@
-const router = require('express').Router()
-const controller = require('../controllers/AuthController')
-const middleware = require('../middleware')
+const router = require('express').Router();
+const { AuthController } = require('../controllers');
+const middleware = require('../middleware');
 
-router.post('/login', controller.Login)
-router.post('/register', controller.Register)
+// User login
+router.post('/login', AuthController.Login);
+
+// User registration
+router.post('/register', AuthController.Register);
+
+// Update user password (Requires authentication)
 router.put(
   '/update/:user_id',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.UpdatePassword
-)
+  AuthController.UpdatePassword
+);
+
+// Check user session validity (Requires authentication)
 router.get(
   '/session',
   middleware.stripToken,
   middleware.verifyToken,
-  controller.CheckSession
-)
+  AuthController.CheckSession
+);
 
-module.exports = router
+module.exports = router;
