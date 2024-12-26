@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const controller = require('../controllers/MealPlanController')
-const middleware = require('./middleware')
+const middleware = require('../middleware')
 
 // Public Routes
 router.get('/', controller.GetMealPlans) // Fetch all meal plans
