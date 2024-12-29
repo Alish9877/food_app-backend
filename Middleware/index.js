@@ -19,7 +19,7 @@ const comparePassword = async (password, storedPassword) => {
 
 // Creates a token using the payload
 const createToken = (payload) => {
-  let token = jwt.sign(payload, APP_SECRET)
+  let token = jwt.sign(payload, APP_SECRET, { expiresIn: '1d' })
   return token
 }
 

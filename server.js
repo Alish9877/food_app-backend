@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Routes
-app.use('/api', routes);
+app.use(routes);
 
 // Default Route
 app.use('/', (req, res) => {
@@ -29,3 +29,4 @@ app.use('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Running Express server on Port ${PORT} . . .`);
 });
+
