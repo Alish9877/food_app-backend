@@ -58,7 +58,6 @@ const Login = async (req, res) => {
 
     const payload = { id: user._id, username: user.username, role: user.role }
     const token = middleware.createToken(payload)
-    console.log('Login Successful. Token:', token)
 
     res.status(200).send({ user: payload, token })
   } catch (error) {
