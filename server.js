@@ -16,13 +16,15 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-// API Routes
-app.use(routes)
+
+// Routes
+app.use(routes);
 
 // Default route
 app.get('/', (req, res) => {
   res.send('Welcome to the Food Subscription API!')
 })
+
 
 // Start the server
 app.listen(PORT, () => {
