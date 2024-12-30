@@ -1,12 +1,12 @@
-const router = require('express').Router();
-const { AuthController } = require('../controllers');
-const middleware = require('../middleware');
+const router = require('express').Router()
+const { AuthController } = require('../controllers')
+const middleware = require('../middleware')
 
-// User login
-router.post('/login', AuthController.Login);
+// User login (Public route)
+router.post('/login', AuthController.Login)
 
-// User registration
-router.post('/register', AuthController.Register);
+// User registration (Public route)
+router.post('/register', AuthController.Register)
 
 // Update user password (Requires authentication)
 router.put(
@@ -14,7 +14,7 @@ router.put(
   middleware.stripToken,
   middleware.verifyToken,
   AuthController.UpdatePassword
-);
+)
 
 // Check user session validity (Requires authentication)
 router.get(
@@ -22,6 +22,6 @@ router.get(
   middleware.stripToken,
   middleware.verifyToken,
   AuthController.CheckSession
-);
+)
 
-module.exports = router;
+module.exports = router

@@ -13,6 +13,7 @@ router.post(
   '/',
   middleware.stripToken,
   middleware.verifyToken,
+  middleware.isAdmin,
   MealPlanController.CreateMealPlan
 )
 
@@ -21,6 +22,7 @@ router.put(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
+  middleware.isAdmin,
   MealPlanController.UpdateMealPlan
 )
 
@@ -29,6 +31,7 @@ router.delete(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
+  middleware.isAdmin,
   MealPlanController.DeleteMealPlan
 )
 

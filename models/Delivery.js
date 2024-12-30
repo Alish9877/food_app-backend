@@ -7,8 +7,19 @@ const deliverySchema = new Schema(
       ref: 'Subscription',
       required: true
     },
-    deliveryDate: { type: Date, required: true },
-    status: { type: String, enum: ['Pending', 'Delivered'], required: true },
+    deliveryDate: {
+      type: Date,
+      required: true,
+      validate: {
+        validator: (v) => v > Date.now(),
+        message: 'Delivery date must be in the future.'
+      }
+    },
+    status: {
+      type: String,
+      enum: ['Pending', 'Delivered'],
+      default: 'Pending'
+    },
     location: { type: String, required: true },
     meals: { type: [String], required: true }
   },
