@@ -7,6 +7,7 @@ router.get(
   '/',
   middleware.stripToken,
   middleware.verifyToken,
+  middleware.isAdmin,
   UserController.GetAllUsers
 )
 
@@ -15,6 +16,7 @@ router.get(
   '/:id',
   middleware.stripToken,
   middleware.verifyToken,
+  middleware.isAdmin,
   UserController.GetUserById
 )
 

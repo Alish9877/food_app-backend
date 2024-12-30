@@ -1,13 +1,18 @@
 const { MealPlan } = require('../models');
 
+// Utility function for error handling
+const handleError = (res, error, message = 'Server error', status = 500) => {
+  console.error(message, error);
+  res.status(status).send({ status: 'error', message });
+};
+
 // Get all meal plans
 const GetMealPlans = async (req, res) => {
   try {
     const mealPlans = await MealPlan.find({});
     res.send(mealPlans);
   } catch (error) {
-    console.error('Error fetching meal plans:', error);
-    res.send({ error: 'Error fetching meal plans' });
+    handleError(res, error, 'Error fetching meal plans');
   }
 };
 
@@ -15,54 +20,45 @@ const GetMealPlans = async (req, res) => {
 const GetMealPlanById = async (req, res) => {
   try {
     const mealPlan = await MealPlan.findById(req.params.id);
-    if (!mealPlan) {
-      return res.send({ error: 'Meal plan not found' });
-    }
+    if (!mealPlan) return res.status(404).send({ error: 'Meal plan not found' });
     res.send(mealPlan);
   } catch (error) {
-    console.error('Error fetching meal plan:', error);
-    res.send({ error: 'Error fetching meal plan' });
+    handleError(res, error, 'Error fetching meal plan');
   }
 };
 
-// Create a new meal plan
+// Create a new meal plan (Admin only)
 const CreateMealPlan = async (req, res) => {
   try {
     const mealPlan = await MealPlan.create(req.body);
-    res.send(mealPlan);
+    res.status(201).send(mealPlan);
   } catch (error) {
-    console.error('Error creating meal plan:', error);
-    res.send({ error: 'Error creating meal plan' });
+    handleError(res, error, 'Error creating meal plan');
   }
 };
 
-// Update an existing meal plan
+// Update an existing meal plan (Admin only)
 const UpdateMealPlan = async (req, res) => {
   try {
     const mealPlan = await MealPlan.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
+      runValidators: true,
     });
-    if (!mealPlan) {
-      return res.send({ error: 'Meal plan not found' });
-    }
+    if (!mealPlan) return res.status(404).send({ error: 'Meal plan not found' });
     res.send(mealPlan);
   } catch (error) {
-    console.error('Error updating meal plan:', error);
-    res.send({ error: 'Error updating meal plan' });
+    handleError(res, error, 'Error updating meal plan');
   }
 };
 
-// Delete a meal plan
+// Delete a meal plan (Admin only)
 const DeleteMealPlan = async (req, res) => {
   try {
     const mealPlan = await MealPlan.findByIdAndDelete(req.params.id);
-    if (!mealPlan) {
-      return res.send({ error: 'Meal plan not found' });
-    }
+    if (!mealPlan) return res.status(404).send({ error: 'Meal plan not found' });
     res.send({ message: 'Meal plan deleted successfully' });
   } catch (error) {
-    console.error('Error deleting meal plan:', error);
-    res.send({ error: 'Error deleting meal plan' });
+    handleError(res, error, 'Error deleting meal plan');
   }
 };
 

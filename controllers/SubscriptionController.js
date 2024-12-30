@@ -1,5 +1,11 @@
 const { Subscription } = require('../models')
 
+// Utility function for error handling
+const handleError = (res, error, message = 'Server error', status = 500) => {
+  console.error(message, error)
+  res.status(status).send({ status: 'error', message })
+}
+
 // Get all subscriptions (Admin only)
 const GetAllSubscriptions = async (req, res) => {
   try {
@@ -8,8 +14,7 @@ const GetAllSubscriptions = async (req, res) => {
       .populate('mealPlan', 'name description')
     res.send(subscriptions)
   } catch (error) {
-    console.error('Error fetching subscriptions:', error)
-    res.send({ error: 'Error fetching subscriptions' })
+    handleError(res, error, 'Error fetching all subscriptions')
   }
 }
 
@@ -21,22 +26,20 @@ const GetUserSubscriptions = async (req, res) => {
     }).populate('mealPlan', 'name description')
     res.send(subscriptions)
   } catch (error) {
-    console.error('Error fetching user subscriptions:', error)
-    res.send({ error: 'Error fetching subscriptions' })
+    handleError(res, error, 'Error fetching user subscriptions')
   }
 }
 
-// Create a new subscription
+// Create a new subscription (User-specific)
 const CreateSubscription = async (req, res) => {
   try {
     const subscription = await Subscription.create({
       ...req.body,
       user: req.user._id
     })
-    res.send(subscription)
+    res.status(201).send(subscription)
   } catch (error) {
-    console.error('Error creating subscription:', error)
-    res.send({ error: 'Error creating subscription' })
+    handleError(res, error, 'Error creating subscription')
   }
 }
 
@@ -46,19 +49,20 @@ const UpdateSubscription = async (req, res) => {
     const subscription = await Subscription.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      {
+        new: true,
+        runValidators: true
+      }
     )
-    if (!subscription) {
-      return res.send({ error: 'Subscription not found' })
-    }
+    if (!subscription)
+      return res.status(404).send({ error: 'Subscription not found' })
     res.send(subscription)
   } catch (error) {
-    console.error('Error updating subscription:', error)
-    res.send({ error: 'Error updating subscription' })
+    handleError(res, error, 'Error updating subscription')
   }
 }
 
-// Cancel a subscription (soft delete by setting active status to false)
+// Cancel a subscription (Soft delete)
 const CancelSubscription = async (req, res) => {
   try {
     const subscription = await Subscription.findByIdAndUpdate(
@@ -66,13 +70,11 @@ const CancelSubscription = async (req, res) => {
       { active: false },
       { new: true }
     )
-    if (!subscription) {
-      return res.send({ error: 'Subscription not found' })
-    }
+    if (!subscription)
+      return res.status(404).send({ error: 'Subscription not found' })
     res.send({ message: 'Subscription canceled successfully' })
   } catch (error) {
-    console.error('Error canceling subscription:', error)
-    res.send({ error: 'Error canceling subscription' })
+    handleError(res, error, 'Error canceling subscription')
   }
 }
 
