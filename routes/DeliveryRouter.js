@@ -2,6 +2,8 @@ const router = require('express').Router()
 const { DeliveryController } = require('../controllers')
 const middleware = require('../middleware')
 
+console.log(middleware);
+
 // Fetch all deliveries (Admin only)
 router.get(
   '/',
