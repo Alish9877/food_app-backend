@@ -1,12 +1,12 @@
 const { Delivery } = require('../models')
 
-// Utility function for error handling
+// Utility: Centralized error handling
 const handleError = (res, error, message = 'Server error', status = 500) => {
   console.error(message, error)
   res.status(status).send({ status: 'error', message })
 }
 
-// Get all deliveries (Admin only)
+// Fetch all deliveries (Admin only)
 const GetAllDeliveries = async (req, res) => {
   try {
     const deliveries = await Delivery.find({})
@@ -21,7 +21,7 @@ const GetAllDeliveries = async (req, res) => {
   }
 }
 
-// Get deliveries for a specific subscription
+// Fetch deliveries for a specific subscription
 const GetDeliveriesBySubscription = async (req, res) => {
   try {
     const deliveries = await Delivery.find({
@@ -33,25 +33,7 @@ const GetDeliveriesBySubscription = async (req, res) => {
   }
 }
 
-// Update delivery (Assign meals or update status)
-const UpdateDelivery = async (req, res) => {
-  try {
-    const updates = req.body
-    const delivery = await Delivery.findByIdAndUpdate(
-      req.params.deliveryId,
-      updates,
-      { new: true }
-    )
-    if (!delivery) {
-      return res.status(404).send({ error: 'Delivery not found' })
-    }
-    res.send(delivery)
-  } catch (error) {
-    handleError(res, error, 'Error updating delivery')
-  }
-}
-
-// Get deliveries for a specific user
+// Fetch deliveries for a specific user
 const GetUserDeliveries = async (req, res) => {
   try {
     const deliveries = await Delivery.find({}).populate({
@@ -59,16 +41,54 @@ const GetUserDeliveries = async (req, res) => {
       match: { user: req.params.userId },
       populate: { path: 'mealPlan', select: 'name' }
     })
-
-    res.send(deliveries.filter((d) => d.subscription !== null))
+    res.send(deliveries.filter((d) => d.subscription !== null)) // Filter out null subscriptions
   } catch (error) {
     handleError(res, error, 'Error fetching user deliveries')
+  }
+}
+
+// Assign meals to a delivery (Admin only)
+const AssignMeals = async (req, res) => {
+  try {
+    const { deliveryId } = req.params
+    const { meals } = req.body
+
+    const delivery = await Delivery.findByIdAndUpdate(
+      deliveryId,
+      { meals },
+      { new: true }
+    )
+
+    if (!delivery) return res.status(404).send({ error: 'Delivery not found' })
+    res.send({ message: 'Meals assigned successfully', delivery })
+  } catch (error) {
+    handleError(res, error, 'Error assigning meals to delivery')
+  }
+}
+
+// Update the delivery status (Admin only)
+const UpdateDeliveryStatus = async (req, res) => {
+  try {
+    const { deliveryId } = req.params
+    const { status } = req.body
+
+    const delivery = await Delivery.findByIdAndUpdate(
+      deliveryId,
+      { status },
+      { new: true }
+    )
+
+    if (!delivery) return res.status(404).send({ error: 'Delivery not found' })
+    res.send({ message: 'Delivery status updated successfully', delivery })
+  } catch (error) {
+    handleError(res, error, 'Error updating delivery status')
   }
 }
 
 module.exports = {
   GetAllDeliveries,
   GetDeliveriesBySubscription,
-  UpdateDelivery,
-  GetUserDeliveries
+  GetUserDeliveries,
+  AssignMeals,
+  UpdateDeliveryStatus
 }
