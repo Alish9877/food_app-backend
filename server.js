@@ -1,31 +1,32 @@
-const express = require('express');
-const logger = require('morgan');
-const cors = require('cors');
+const express = require('express')
+const logger = require('morgan')
+const cors = require('cors')
 
-// Routers (importing centralized routes)
-const routes = require('./routes');
+// Import centralized routes
+const routes = require('./routes')
+const db = require('./db')
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001
 
-const db = require('./db');
+const app = express()
 
-const app = express();
+// Middleware setup
+app.use(cors())
+app.use(logger('dev'))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 
-// Middleware
-app.use(cors());
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
 // Routes
-app.use('/api', routes);
+app.use(routes);
 
-// Default Route
-app.use('/', (req, res) => {
-  res.send(`Connected to Food Subscription API!`);
-});
+// Default route
+app.get('/', (req, res) => {
+  res.send('Welcome to the Food Subscription API!')
+})
 
-// Server Listener
+
+// Start the server
 app.listen(PORT, () => {
-  console.log(`Running Express server on Port ${PORT} . . .`);
-});
+  console.log(`Server is running on http://localhost:${PORT}`)
+})

@@ -5,53 +5,49 @@ require('dotenv').config()
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS, 10)
 const APP_SECRET = process.env.APP_SECRET
 
-// Hashes the password
-const hashPassword = async (password) => {
-  let hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
-  return hashedPassword
-}
+// Utilities
+const hashPassword = async (password) => bcrypt.hash(password, SALT_ROUNDS)
 
-// Compares the plain-text password with the hashed password
-const comparePassword = async (password, storedPassword) => {
-  let passwordMatch = await bcrypt.compare(password, storedPassword)
-  return passwordMatch
-}
+const comparePassword = async (password, storedPassword) =>
+  bcrypt.compare(password, storedPassword)
 
-// Creates a token using the payload
-const createToken = (payload) => {
-  let token = jwt.sign(payload, APP_SECRET)
-  return token
-}
+const createToken = (payload) =>
+  jwt.sign(payload, APP_SECRET, { expiresIn: '1d' })
 
-// Extracts the token from the authorization header
+// Middleware: Extract the token from the Authorization header
 const stripToken = (req, res, next) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1]
-    if (token) {
-      res.locals.token = token
-      return next()
+    if (!token) {
+      throw new Error('No token provided')
     }
-    res.status(401).send({ status: 'Error', msg: 'Unauthorized' })
+    res.locals.token = token
+    next()
   } catch (error) {
-    console.error('Error in stripToken:', error)
-    res.status(401).send({ status: 'Error', msg: 'Strip Token Error!' })
+    console.error('Error in stripToken:', error.message)
+    res.status(401).send({ status: 'Error', msg: 'Unauthorized' })
   }
 }
 
-// Verifies the token and stores its payload
+// Middleware: Verify the token and store its decoded payload
 const verifyToken = (req, res, next) => {
-  const { token } = res.locals
   try {
-    let payload = jwt.verify(token, APP_SECRET)
-    if (payload) {
-      res.locals.payload = payload
-      return next()
-    }
-    res.status(401).send({ status: 'Error', msg: 'Unauthorized' })
+    const payload = jwt.verify(res.locals.token, APP_SECRET)
+    res.locals.payload = payload
+    next()
   } catch (error) {
-    console.error('Error in verifyToken:', error)
-    res.status(401).send({ status: 'Error', msg: 'Verify Token Error!' })
+    console.error('Error in verifyToken:', error.message)
+    res.status(401).send({ status: 'Error', msg: 'Unauthorized' })
   }
+}
+
+// Middleware: Check if the user is an admin
+const isAdmin = (req, res, next) => {
+  const { role } = res.locals.payload || {}
+  if (role === 'Admin') {
+    return next()
+  }
+  res.status(403).send({ status: 'Error', msg: 'Admin access only' })
 }
 
 module.exports = {
@@ -59,5 +55,6 @@ module.exports = {
   comparePassword,
   createToken,
   stripToken,
-  verifyToken
+  verifyToken,
+  isAdmin
 }

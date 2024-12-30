@@ -4,6 +4,7 @@ const mealPlanSchema = require('./MealPlan')
 const subscriptionSchema = require('./Subscription')
 const deliverySchema = require('./Delivery')
 
+// Initialize models
 const User = mongoose.model('User', userSchema)
 const MealPlan = mongoose.model('MealPlan', mealPlanSchema)
 const Subscription = mongoose.model('Subscription', subscriptionSchema)

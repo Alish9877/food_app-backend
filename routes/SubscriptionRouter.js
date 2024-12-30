@@ -7,6 +7,7 @@ router.get(
   '/',
   middleware.stripToken,
   middleware.verifyToken,
+  middleware.isAdmin,
   SubscriptionController.GetAllSubscriptions
 )
 
