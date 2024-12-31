@@ -10,58 +10,70 @@ const handleError = (res, error, message = 'Server error', status = 500) => {
 // User Registration
 const Register = async (req, res) => {
   try {
-    const { username, email, password } = req.body
+    const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
-      return res.status(400).send({ error: 'All fields are required!' })
+      return res.status(400).send({ error: 'All fields are required!' });
     }
 
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] })
+    const lowercasedEmail = email.toLowerCase(); // Convert email to lowercase
+
+    const existingUser = await User.findOne({
+      $or: [{ email: lowercasedEmail }, { username }],
+    });
     if (existingUser) {
       return res
         .status(400)
-        .send({ error: 'Email or username already exists!' })
+        .send({ error: 'Email or username already exists!' });
     }
 
-    const passwordDigest = await middleware.hashPassword(password)
-    const user = await User.create({ username, email, passwordDigest })
+    const passwordDigest = await middleware.hashPassword(password);
+    const user = await User.create({
+      username,
+      email: lowercasedEmail, // Store lowercase email
+      passwordDigest,
+    });
 
-    res.status(201).send({ message: 'User registered successfully', user })
+    res.status(201).send({ message: 'User registered successfully', user });
   } catch (error) {
-    handleError(res, error, 'Error during registration')
+    handleError(res, error, 'Error during registration');
   }
-}
+};
+
 
 // User Login
 const Login = async (req, res) => {
   try {
-    const { email, password } = req.body
+    const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).send({ error: 'Email and password are required!' })
+      return res.status(400).send({ error: 'Email and password are required!' });
     }
 
-    const user = await User.findOne({ email })
+    const lowercasedEmail = email.toLowerCase(); // Convert email to lowercase
+
+    const user = await User.findOne({ email: lowercasedEmail }); // Query with lowercase email
     if (!user) {
-      return res.status(401).send({ error: 'Invalid email or password' })
+      return res.status(401).send({ error: 'Invalid email or password' });
     }
 
     const matched = await middleware.comparePassword(
       password,
       user.passwordDigest
-    )
+    );
     if (!matched) {
-      return res.status(401).send({ error: 'Invalid email or password' })
+      return res.status(401).send({ error: 'Invalid email or password' });
     }
 
-    const payload = { id: user._id, username: user.username, role: user.role }
-    const token = middleware.createToken(payload)
+    const payload = { id: user._id, username: user.username, role: user.role };
+    const token = middleware.createToken(payload);
 
-    res.status(200).send({ user: payload, token })
+    res.status(200).send({ user: payload, token });
   } catch (error) {
-    handleError(res, error, 'Error during login')
+    handleError(res, error, 'Error during login');
   }
-}
+};
+
 
 // Update User Password
 const UpdatePassword = async (req, res) => {
