@@ -33,6 +33,18 @@ const GetUserSubscriptions = async (req, res) => {
 // Create a new subscription (User-specific)
 const CreateSubscription = async (req, res) => {
   try {
+    const { selectedDays } = req.body
+
+    if (
+      !selectedDays ||
+      !Array.isArray(selectedDays) ||
+      selectedDays.length === 0
+    ) {
+      return res
+        .status(400)
+        .send({ error: 'Selected days are required and must be an array.' })
+    }
+
     const subscription = await Subscription.create({
       ...req.body,
       user: req.user._id
@@ -46,6 +58,17 @@ const CreateSubscription = async (req, res) => {
 // Update an existing subscription
 const UpdateSubscription = async (req, res) => {
   try {
+    const { selectedDays } = req.body
+
+    if (
+      selectedDays &&
+      (!Array.isArray(selectedDays) || selectedDays.length === 0)
+    ) {
+      return res
+        .status(400)
+        .send({ error: 'Selected days must be a non-empty array.' })
+    }
+
     const subscription = await Subscription.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -54,8 +77,9 @@ const UpdateSubscription = async (req, res) => {
         runValidators: true
       }
     )
-    if (!subscription)
+    if (!subscription) {
       return res.status(404).send({ error: 'Subscription not found' })
+    }
     res.send(subscription)
   } catch (error) {
     handleError(res, error, 'Error updating subscription')
