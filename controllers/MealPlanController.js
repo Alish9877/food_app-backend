@@ -1,4 +1,5 @@
 const { MealPlan, SelectedMeal } = require('../models')
+const mongoose = require('mongoose')
 
 // Utility function for error handling
 const handleError = (res, error, message = 'Server error', status = 500) => {
@@ -67,20 +68,50 @@ const DeleteMealPlan = async (req, res) => {
 // Save selected meals
 const SaveSelectedMeals = async (req, res) => {
   try {
-    const { userId, meals } = req.body
+    const { userId, selectedMeals } = req.body
 
-    const existing = await SelectedMeal.findOne({ userId })
-    if (existing) {
-      const updatedMeals = [...new Set([...existing.meals, ...meals])]
-      existing.meals = updatedMeals
-      await existing.save()
-      return res.status(200).send(existing)
+    // Validate userId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).send({ error: 'Invalid userId' })
     }
 
-    const selectedMeals = await SelectedMeal.create({ userId, meals })
-    res.status(201).send(selectedMeals)
+    // Validate selectedMeals
+    const validMeals = selectedMeals.filter((mealId) =>
+      mongoose.Types.ObjectId.isValid(mealId)
+    )
+
+    if (validMeals.length !== selectedMeals.length) {
+      return res
+        .status(400)
+        .send({ error: 'One or more meal IDs are invalid.' })
+    }
+
+    // Convert IDs to ObjectId
+    const objectIdMeals = validMeals.map(
+      (mealId) => new mongoose.Types.ObjectId(mealId)
+    )
+
+    // Check if the user already has selected meals
+    const existingSelection = await SelectedMeal.findOne({ userId })
+
+    if (existingSelection) {
+      // Merge new meals with existing ones
+      existingSelection.meals = [
+        ...new Set([...existingSelection.meals, ...objectIdMeals])
+      ]
+      await existingSelection.save()
+      return res.status(200).send(existingSelection)
+    }
+
+    // Create a new record if no previous selection exists
+    const newSelection = await SelectedMeal.create({
+      userId: mongoose.Types.ObjectId(userId),
+      meals: objectIdMeals
+    })
+    res.status(201).send(newSelection)
   } catch (error) {
-    handleError(res, error, 'Error saving selected meals')
+    console.error('Error saving selected meals:', error)
+    res.status(500).send({ error: 'Failed to save selected meals.' })
   }
 }
 
