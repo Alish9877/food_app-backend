@@ -1,4 +1,4 @@
-const { MealPlan } = require('../models');
+const { MealPlan, SelectedMeal } = require('../models');
 
 // Utility function for error handling
 const handleError = (res, error, message = 'Server error', status = 500) => {
@@ -62,10 +62,21 @@ const DeleteMealPlan = async (req, res) => {
   }
 };
 
+// Save selected meals
+const SaveSelectedMeals = async (req, res) => {
+  try {
+    const selectedMeals = await SelectedMeal.create(req.body);
+    res.status(201).send(selectedMeals);
+  } catch (error) {
+    handleError(res, error, 'Error saving selected meals');
+  }
+};
+
 module.exports = {
   GetMealPlans,
   GetMealPlanById,
   CreateMealPlan,
   UpdateMealPlan,
   DeleteMealPlan,
+  SaveSelectedMeals,
 };
