@@ -32,15 +32,19 @@ Entity relationship diagrams (ERDs) are a way to describe the data that will be 
 2. Time and Date - Date and is required
 3. Tick Count - Number, minimum of 0, and is required
 
-**For Ticket, we need to keep track of:**
+**For Subscription , we need to keep track of:**
 
-1. Tick Count - Number, minimum of 0, and is required
-2. Tick Type - String and is required
-3. Tick Price - Number, minimum of 0, and is required
+1. StartDate - Date and required
+2. Duration - Number (in months) and required
+3. MealsPerDay - Enum (2 or 3) and required
+4. Price - Number and required
+5. Preferences - Array (List of Strings)
 
-**For Comments, we need to keep track of:**
+**For MealPlan, we need to keep track of:**
 
-1. Description - String and is required
+1. Name - String and required
+2. Description - string
+3. Dishes - Array (List of Strings)
 
 **For Category, we need to keep track of:**
 
