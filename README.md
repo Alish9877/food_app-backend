@@ -53,45 +53,45 @@ Entity relationship diagrams (ERDs) are a way to describe the data that will be 
 3. Location - String and required
 4. Meals - Array (List of Strings)
 
-![Entity relationship diagrams (ERD) ](./TickPick.png)
+![Entity relationship diagrams (ERD) ](./photos/ERD.png)
 
 # wireframes
 
 **First page:**
 
-![First page](./firstpage.png)
+![First page]()
 
 **Second page:**
 
 _if the user sign in or sign up it will sow to the user this page:_
 
-![Second page](./Second%20page.png)
+![Second page]()
 
 **Sign up:**
 
 _To Create new account page:_
 
-![Create new account page](./Fpage.png)
+![Create new account page]()
 
 > Note: if the user click on sign up it will show the user this page.
 
 **Sign in:**
 
-![sign in](./sign%20in.png)
+![sign in]()
 
 > Note: if the user click on sign in it will show the user this page.
 
 **Third page:**
 
-_After the user click on categories button it will show to the user this page:_
+_Here is the Home Page:_
 
-![Categories page](./Categorise.png)
+![Home page]()
 
-**List of the events:**
+**List of the Melas:**
 
-_After the user select on one of the categories it will show to the user this page:_
+_After the user select the mealPlan button , it will show to the user the list of Meals:_
 
-![List of the Categories selected](./list.png)
+![List of the Meals]()
 
 **Information of the events:**
 
