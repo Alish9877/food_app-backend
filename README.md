@@ -93,41 +93,38 @@ _After the user select the mealPlan button , it will show to the user the list o
 
 ![List of the Meals]()
 
-**Information of the events:**
+**Subscription Page:**
 
-_After the user select on of the events it will show to the user this page:_
+_After the user select on of the Meals and continue ,  it will show to the user Subscription Page:_
 
-![Information of the events](./event%20info.png)
+![Subscription Info]()
 
-> Note: the user can buy the ticket from this page.
+**Delivery Page:**
+
+_After the user add the subscription info , it will show to the user Delivery Page:_
+
+![Address]()
 
 **Profile page:**
 
-![profile page](./profile.png)
-
-> Note: if the user click on edit button it will allow the user to edit the details.
-
-![wireframe](./wireframe.png)
-
-[Wireframe link](https://www.canva.com/design/DAGYVOanQ8A/eHEWSjQ8PFcfRaPrF6Oi4Q/edit?utm_content=DAGYVOanQ8A&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+![profile page]()
 
 # Tello
 
 **We use Tello to organize our time and to make a clear plan:**
-![todo list](image.png)
+![todo list](/photos/Trello.png)
 
-[Tello link](https://trello.com/b/WtBlCk2q/tickpick)
+[Tello link](https://trello.com/b/G5hQgnh9/foodapp)
 
-# USER TECHNOLOGY
+# TECHNOLOGY USED
 
-- HTML
-- JAVA SCRIPT
-- CSS
-- EJS
+- MONGODB
+- EXPRESS.JS
+- REACT.JS
 - NODE.JS
 
 # NEXT STEP
 
-1. make the user can select there own site in the stadium football.
-2. make different tickets type.
-3. make the application it compilable with different type of devices.
+1. More Plans , More Meals.
+2. The users can pause their subscriptions.
+3. The users can changes their Meals everyday.
