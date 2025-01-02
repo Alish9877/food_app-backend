@@ -94,7 +94,6 @@ const SaveSelectedMeals = async (req, res) => {
 
     const existingSelection = await SelectedMeal.findOne({ userId });
     if (existingSelection) {
-      // Merge new meal IDs into existing array, removing duplicates
       existingSelection.meals = [
         ...new Set([...existingSelection.meals, ...objectIdMeals])
       ];
@@ -102,7 +101,6 @@ const SaveSelectedMeals = async (req, res) => {
       return res.status(200).send(existingSelection);
     }
 
-    // Otherwise, create a new 'selected meals' doc
     const newSelection = await SelectedMeal.create({
       userId: mongoose.Types.ObjectId(userId),
       meals: objectIdMeals
@@ -114,11 +112,41 @@ const SaveSelectedMeals = async (req, res) => {
   }
 };
 
+const ImportExternalMealPlan = async (req, res) => {
+  try {
+    const { externalMeal } = req.body
+
+    const existing = await MealPlan.findOne({ externalId: externalMeal.idMeal })
+    if (existing) {
+      return res.status(200).json(existing)
+    }
+
+    const mappedMealPlan = {
+      name: externalMeal.strMeal,
+      description: externalMeal.strInstructions
+        ? externalMeal.strInstructions.slice(0, 100) + '...'
+        : 'No instructions available',
+      dishes: [externalMeal.strMeal],
+      price: externalMeal.price || 10,
+      category: externalMeal.strCategory || 'Misc',
+      source: 'external',
+      externalId: externalMeal.idMeal
+    }
+
+    const mealPlan = await MealPlan.create(mappedMealPlan)
+    return res.status(201).json(mealPlan)
+  } catch (error) {
+    console.error('Error importing external meal plan:', error)
+    res.status(500).send({ error: 'Failed to import external meal' })
+  }
+}
+
 module.exports = {
   GetMealPlans,
   GetMealPlanById,
   CreateMealPlan,
   UpdateMealPlan,
   DeleteMealPlan,
-  SaveSelectedMeals
+  SaveSelectedMeals,
+  ImportExternalMealPlan
 };
