@@ -46,9 +46,12 @@ Entity relationship diagrams (ERDs) are a way to describe the data that will be 
 2. Description - string
 3. Dishes - Array (List of Strings)
 
-**For Category, we need to keep track of:**
+**For Delivery, we need to keep track of:**
 
-1. Category Type - String and is required
+1. Delivery Date - Date and required
+2. Status - Enum (Pending , Delivered) and required
+3. Location - String and required
+4. Meals - Array (List of Strings)
 
 ![Entity relationship diagrams (ERD) ](./TickPick.png)
 
