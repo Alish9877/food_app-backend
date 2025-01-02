@@ -21,9 +21,10 @@ Entity relationship diagrams (ERDs) are a way to describe the data that will be 
 
 **For users, we need to keep track of:**
 
-1. Username - String and is required
-2. Password - String and is required
-3. Account type - boolean and is required
+1. Username - String , required and unique
+2. Username - String , required and unique
+3. Password - String and required
+4. Account type - enum (admin , user) and its defualt as a user
 
 **For Event, we need to keep track of:**
 
