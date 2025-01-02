@@ -11,7 +11,7 @@ router.get(
   DeliveryController.GetAllDeliveries
 )
 
-// Fetch deliveries for a specific subscription
+// Fetch deliveries for a specific subscription (Admin only)
 router.get(
   '/subscription/:subscriptionId',
   middleware.stripToken,
@@ -20,7 +20,7 @@ router.get(
   DeliveryController.GetDeliveriesBySubscription
 )
 
-// Fetch deliveries for a specific user
+// Fetch deliveries for a specific user (needs to be logged in, but admin vs user checks can vary)
 router.get(
   '/user/:userId',
   middleware.stripToken,
@@ -61,22 +61,7 @@ router.delete(
   middleware.stripToken,
   middleware.verifyToken,
   middleware.isAdmin,
-  async (req, res) => {
-    try {
-      const { deliveryId } = req.params
-      const deletedDelivery = await Delivery.findByIdAndDelete(deliveryId)
-      if (!deletedDelivery) {
-        return res.status(404).send({ error: 'Delivery not found' })
-      }
-      res.send({
-        message: 'Delivery deleted successfully',
-        delivery: deletedDelivery
-      })
-    } catch (error) {
-      console.error('Error deleting delivery:', error)
-      res.status(500).send({ error: 'Server error' })
-    }
-  }
+  DeliveryController.DeleteDelivery
 )
 
 module.exports = router

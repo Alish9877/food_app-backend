@@ -1,4 +1,4 @@
-const { Schema } = require('mongoose')
+const { Schema } = require('mongoose');
 
 const selectedMealSchema = new Schema(
   {
@@ -16,6 +16,6 @@ const selectedMealSchema = new Schema(
     ]
   },
   { timestamps: true }
-)
+);
 
-module.exports = selectedMealSchema
+module.exports = selectedMealSchema;

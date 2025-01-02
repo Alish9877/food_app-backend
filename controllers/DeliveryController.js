@@ -13,7 +13,7 @@ const GetAllDeliveries = async (req, res) => {
       .populate('subscription', 'user mealPlan')
       .populate({
         path: 'subscription',
-        populate: { path: 'user', select: 'username email' },
+        populate: { path: 'user', select: 'username email' }
       });
     res.send(deliveries);
   } catch (error) {
@@ -21,11 +21,11 @@ const GetAllDeliveries = async (req, res) => {
   }
 };
 
-// Fetch deliveries for a specific subscription
+// Fetch deliveries for a specific subscription (Admin only)
 const GetDeliveriesBySubscription = async (req, res) => {
   try {
     const deliveries = await Delivery.find({
-      subscription: req.params.subscriptionId,
+      subscription: req.params.subscriptionId
     });
     res.send(deliveries);
   } catch (error) {
@@ -39,9 +39,11 @@ const GetUserDeliveries = async (req, res) => {
     const deliveries = await Delivery.find({}).populate({
       path: 'subscription',
       match: { user: req.params.userId },
-      populate: { path: 'mealPlan', select: 'name' },
+      populate: { path: 'mealPlan', select: 'name' }
     });
-    res.send(deliveries.filter((d) => d.subscription !== null));
+    // Filter out any deliveries where subscription didn't match the user
+    const filtered = deliveries.filter((d) => d.subscription !== null);
+    res.send(filtered);
   } catch (error) {
     handleError(res, error, 'Error fetching user deliveries');
   }
@@ -58,8 +60,9 @@ const AssignMeals = async (req, res) => {
       { meals },
       { new: true }
     );
-
-    if (!delivery) return res.status(404).send({ error: 'Delivery not found' });
+    if (!delivery) {
+      return res.status(404).send({ error: 'Delivery not found' });
+    }
     res.send({ message: 'Meals assigned successfully', delivery });
   } catch (error) {
     handleError(res, error, 'Error assigning meals to delivery');
@@ -77,9 +80,9 @@ const UpdateDeliveryStatus = async (req, res) => {
       { status },
       { new: true }
     );
-
-    if (!delivery)
+    if (!delivery) {
       return res.status(404).send({ error: 'Delivery not found' });
+    }
     res.send({ message: 'Delivery status updated successfully', delivery });
   } catch (error) {
     handleError(res, error, 'Error updating delivery status');
@@ -96,6 +99,23 @@ const CreateDelivery = async (req, res) => {
   }
 };
 
+// Delete a delivery (Admin only)
+const DeleteDelivery = async (req, res) => {
+  try {
+    const { deliveryId } = req.params;
+    const deletedDelivery = await Delivery.findByIdAndDelete(deliveryId);
+    if (!deletedDelivery) {
+      return res.status(404).send({ error: 'Delivery not found' });
+    }
+    res.send({
+      message: 'Delivery deleted successfully',
+      delivery: deletedDelivery
+    });
+  } catch (error) {
+    handleError(res, error, 'Error deleting delivery');
+  }
+};
+
 module.exports = {
   GetAllDeliveries,
   GetDeliveriesBySubscription,
@@ -103,4 +123,5 @@ module.exports = {
   AssignMeals,
   UpdateDeliveryStatus,
   CreateDelivery,
+  DeleteDelivery
 };
