@@ -1,9 +1,11 @@
-const { Schema } = require('mongoose');
+const { Schema } = require('mongoose')
 
 const subscriptionSchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    mealPlan: { type: Schema.Types.ObjectId, ref: 'MealPlan', required: true },
+    mealPlans: [
+      { type: Schema.Types.ObjectId, ref: 'MealPlan', required: true }
+    ],
     startDate: {
       type: Date,
       required: true,
@@ -13,15 +15,19 @@ const subscriptionSchema = new Schema(
       }
     },
     duration: { type: Number, required: true },
-    mealsPerDay: { type: String, enum: ['1-2', '2-3'], required: true },
+    mealsPerDay: {
+      type: Number,
+      required: true,
+      min: [1, 'mealsPerDay must be at least 1.'],
+      max: [3, 'mealsPerDay cannot exceed 3.']
+    },
     price: { type: Number, required: true },
     preferences: { type: [String], default: [] },
     selectedDays: { type: [String], required: true },
 
-    // Soft-delete indicator:
     active: { type: Boolean, default: true }
   },
   { timestamps: true }
-);
+)
 
-module.exports = subscriptionSchema;
+module.exports = subscriptionSchema

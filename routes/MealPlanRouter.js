@@ -17,10 +17,11 @@ router.post(
   MealPlanController.CreateMealPlan
 )
 
+// NEW route for importing external meal (NOT admin-only)
 router.post(
   '/import-external',
   middleware.stripToken,
-  middleware.verifyToken, // only requires user to be logged in, no isAdmin
+  middleware.verifyToken,
   MealPlanController.ImportExternalMealPlan
 )
 
