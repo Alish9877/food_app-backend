@@ -1,14 +1,12 @@
-// controllers/SubscriptionController.js
-
 const { Subscription, MealPlan } = require('../models')
+const mongoose = require('mongoose')
 
-// Utility function for error handling
 const handleError = (res, error, message = 'Server error', status = 500) => {
   console.error(message, error)
   res.status(status).send({ status: 'error', message })
 }
 
-// Get all subscriptions (Admin only)
+// Fetch all subscriptions (Admin only)
 const GetAllSubscriptions = async (req, res) => {
   try {
     const subscriptions = await Subscription.find({})
@@ -20,7 +18,7 @@ const GetAllSubscriptions = async (req, res) => {
   }
 }
 
-// Get subscriptions for a specific user
+// Fetch subscriptions for a specific user
 const GetUserSubscriptions = async (req, res) => {
   try {
     const subscriptions = await Subscription.find({
@@ -32,124 +30,102 @@ const GetUserSubscriptions = async (req, res) => {
   }
 }
 
-// Create a new subscription (User-specific)
+// Create a new subscription
 const CreateSubscription = async (req, res) => {
   try {
-    // Extract and map fields from the request body
     const {
-      startingDay,
+      startDate,
       deliveryTime,
       selectedDays,
-      selectedMeals,
-      totalPrice,
+      mealPlans,
+      price,
       duration,
       mealsPerDay,
       preferences
     } = req.body
 
-    // Validate selectedDays
-    if (
-      !selectedDays ||
-      !Array.isArray(selectedDays) ||
-      selectedDays.length === 0
-    ) {
-      return res
-        .status(400)
-        .send({ error: 'Selected days are required and must be an array.' })
+    // Validation Helper Functions
+    const isValidArray = (arr) => Array.isArray(arr) && arr.length > 0
+
+    const validateFields = () => {
+      if (!isValidArray(selectedDays)) {
+        throw {
+          status: 400,
+          message: 'Selected days are required and must be an array.'
+        }
+      }
+
+      if (!isValidArray(mealPlans)) {
+        throw {
+          status: 400,
+          message:
+            'mealPlans must contain valid ObjectId values and cannot be empty.'
+        }
+      }
+
+      if (
+        !startDate ||
+        isNaN(new Date(startDate)) ||
+        new Date(startDate) <= Date.now()
+      ) {
+        throw {
+          status: 400,
+          message: 'startDate must be a valid and future date.'
+        }
+      }
+
+      if (price === undefined || price === null) {
+        throw { status: 400, message: 'Price is required.' }
+      }
+
+      if (duration === undefined || mealsPerDay < 1 || mealsPerDay > 3) {
+        throw {
+          status: 400,
+          message: 'Valid duration and mealsPerDay are required.'
+        }
+      }
+
+      if (!req.user || !req.user.id) {
+        throw { status: 401, message: 'User not authenticated' }
+      }
     }
 
-    // Validate selectedMeals
-    if (
-      !selectedMeals ||
-      !Array.isArray(selectedMeals) ||
-      selectedMeals.length === 0
-    ) {
-      return res.status(400).send({
-        error: 'selectedMeals are required and must be a non-empty array.'
-      })
-    }
+    // Validate input fields
+    validateFields()
 
-    // Validate startingDay
-    if (!startingDay) {
-      return res.status(400).send({ error: 'startingDay is required.' })
-    }
-
-    // Validate totalPrice
-    if (totalPrice === undefined || totalPrice === null) {
-      return res.status(400).send({ error: 'totalPrice is required.' })
-    }
-
-    // Validate duration
-    if (duration === undefined || duration === null) {
-      return res.status(400).send({ error: 'duration is required.' })
-    }
-
-    // Validate mealsPerDay
-    if (typeof mealsPerDay !== 'number' || mealsPerDay < 1 || mealsPerDay > 3) {
-      return res.status(400).send({
-        error: 'mealsPerDay is required and must be a number between 1 and 3.'
-      })
-    }
-
-    const startDate = new Date(startingDay)
-    if (isNaN(startDate)) {
-      return res
-        .status(400)
-        .send({ error: 'startingDay must be a valid date.' })
-    }
-
-    if (startDate <= Date.now()) {
-      return res.status(400).send({ error: 'startDate must be in the future.' })
-    }
-
-    const uniqueSelectedMeals = [...new Set(selectedMeals)]
-
-    const mealPlans = await MealPlan.find({
-      name: { $in: uniqueSelectedMeals }
+    // Validate mealPlans
+    const validMealPlans = await MealPlan.find({
+      _id: {
+        $in: mealPlans.filter((id) => mongoose.Types.ObjectId.isValid(id))
+      }
     })
 
-    if (mealPlans.length !== uniqueSelectedMeals.length) {
-      return res
-        .status(400)
-        .send({ error: 'One or more selectedMeals are invalid.' })
+    if (validMealPlans.length !== mealPlans.length) {
+      throw { status: 400, message: 'One or more mealPlans are invalid.' }
     }
 
-    const mealPlanIds = mealPlans.map((meal) => meal._id)
-
-    let updatedPreferences = preferences || []
-    if (deliveryTime) {
-      updatedPreferences.push(deliveryTime)
-    }
-
+    // Prepare subscription data
     const subscriptionData = {
-      mealPlans: mealPlanIds,
+      mealPlans: validMealPlans.map((meal) => meal._id),
       startDate,
       duration,
       mealsPerDay,
-      price: totalPrice,
+      price,
       selectedDays,
-      user: req.user._id,
-      preferences: updatedPreferences
+      user: req.user.id,
+      preferences: preferences || []
     }
 
-    // Create the subscription in the database
-    const subscription = await Subscription.create(subscriptionData)
+    if (deliveryTime) subscriptionData.preferences.push(deliveryTime)
 
-    // Send the created subscription as a response
+    // Create subscription
+    const subscription = await Subscription.create(subscriptionData)
     res.status(201).send(subscription)
   } catch (error) {
     console.error('Error in CreateSubscription:', error)
-
-    // Enhanced error handling for validation errors
-    if (error.name === 'ValidationError') {
-      const messages = Object.values(error.errors).map((err) => err.message)
-      return res
-        .status(400)
-        .send({ status: 'error', message: messages.join(', ') })
-    }
-
-    // Fallback to generic error handler
-    handleError(res, error, 'Error creating subscription')
+    const status = error.status || 500
+    const message = error.message || 'Error creating subscription'
+    res.status(status).send({ error: message })
   }
 }
 
@@ -165,8 +141,6 @@ const UpdateSubscription = async (req, res) => {
         .status(400)
         .send({ error: 'Selected days must be a non-empty array.' })
     }
-
-    // Optionally, handle selectedMeals similarly to CreateSubscription if updating mealPlans
 
     const subscription = await Subscription.findByIdAndUpdate(
       req.params.id,

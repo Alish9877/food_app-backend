@@ -9,7 +9,7 @@ const handleError = (res, error, message = 'Server error', status = 500) => {
 // Get all users (Admin only)
 const GetAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, 'username email role') // Limit fields to return
+    const users = await User.find({}, 'username email role')
     res.send(users)
   } catch (error) {
     handleError(res, error, 'Error fetching all users')
@@ -30,14 +30,20 @@ const GetUserById = async (req, res) => {
 // Update user profile (User themselves)
 const UpdateUserProfile = async (req, res) => {
   try {
-    const { username, email } = req.body
-
-    // Find and update the user
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { username, email },
-      { new: true, runValidators: true }
-    )
+    const { username, email, profileImageUrl } = req.body
+    const updateData = {
+      username,
+      email,
+      profileImage: profileImageUrl
+        ? { url: profileImageUrl }
+        : req.file
+        ? { data: req.file.buffer, contentType: req.file.mimetype }
+        : undefined
+    }
+    const user = await User.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true
+    })
     if (!user) return res.status(404).send({ error: 'User not found' })
     res.send(user)
   } catch (error) {

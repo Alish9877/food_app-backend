@@ -1,5 +1,4 @@
-const { MealPlan, SelectedMeal } = require('../models')
-const mongoose = require('mongoose')
+const { MealPlan } = require('../models')
 
 // Utility function for error handling
 const handleError = (res, error, message = 'Server error', status = 500) => {
@@ -35,7 +34,19 @@ const GetMealPlanById = async (req, res) => {
 // Create a new meal plan (Admin only)
 const CreateMealPlan = async (req, res) => {
   try {
-    const mealPlan = await MealPlan.create(req.body)
+    const { name, description, price, category, imageUrl } = req.body
+    const mealPlanData = {
+      name,
+      description,
+      price,
+      category,
+      image: imageUrl
+        ? { url: imageUrl }
+        : req.file
+        ? { data: req.file.buffer, contentType: req.file.mimetype }
+        : null
+    }
+    const mealPlan = await MealPlan.create(mealPlanData)
     res.status(201).send(mealPlan)
   } catch (error) {
     handleError(res, error, 'Error creating meal plan')
@@ -45,10 +56,23 @@ const CreateMealPlan = async (req, res) => {
 // Update an existing meal plan (Admin only)
 const UpdateMealPlan = async (req, res) => {
   try {
-    const mealPlan = await MealPlan.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    })
+    const { imageUrl } = req.body
+    const updateData = {
+      ...req.body,
+      image: imageUrl
+        ? { url: imageUrl }
+        : req.file
+        ? { data: req.file.buffer, contentType: req.file.mimetype }
+        : undefined
+    }
+    const mealPlan = await MealPlan.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      {
+        new: true,
+        runValidators: true
+      }
+    )
     if (!mealPlan) {
       return res.status(404).send({ error: 'Meal plan not found' })
     }
@@ -71,49 +95,7 @@ const DeleteMealPlan = async (req, res) => {
   }
 }
 
-// Save selected meals
-const SaveSelectedMeals = async (req, res) => {
-  try {
-    const { userId, selectedMeals } = req.body
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).send({ error: 'Invalid userId' })
-    }
-
-    const validMeals = selectedMeals.filter((mealId) =>
-      mongoose.Types.ObjectId.isValid(mealId)
-    )
-
-    if (validMeals.length !== selectedMeals.length) {
-      return res
-        .status(400)
-        .send({ error: 'One or more meal IDs are invalid.' })
-    }
-
-    const objectIdMeals = validMeals.map(
-      (mealId) => new mongoose.Types.ObjectId(mealId)
-    )
-
-    const existingSelection = await SelectedMeal.findOne({ userId })
-    if (existingSelection) {
-      existingSelection.meals = [
-        ...new Set([...existingSelection.meals, ...objectIdMeals])
-      ]
-      await existingSelection.save()
-      return res.status(200).send(existingSelection)
-    }
-
-    const newSelection = await SelectedMeal.create({
-      userId: mongoose.Types.ObjectId(userId),
-      meals: objectIdMeals
-    })
-    res.status(201).send(newSelection)
-  } catch (error) {
-    console.error('Error saving selected meals:', error)
-    res.status(500).send({ error: 'Failed to save selected meals.' })
-  }
-}
-
+// Import an external meal plan (optional integration with external APIs)
 const ImportExternalMealPlan = async (req, res) => {
   try {
     const { externalMeal } = req.body
@@ -149,6 +131,5 @@ module.exports = {
   CreateMealPlan,
   UpdateMealPlan,
   DeleteMealPlan,
-  SaveSelectedMeals,
   ImportExternalMealPlan
 }

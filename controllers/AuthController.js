@@ -16,7 +16,7 @@ const Register = async (req, res) => {
       return res.status(400).send({ error: 'All fields are required!' });
     }
 
-    const lowercasedEmail = email.toLowerCase(); // Convert email to lowercase
+    const lowercasedEmail = email.toLowerCase(); 
 
     const existingUser = await User.findOne({
       $or: [{ email: lowercasedEmail }, { username }],
@@ -30,7 +30,7 @@ const Register = async (req, res) => {
     const passwordDigest = await middleware.hashPassword(password);
     const user = await User.create({
       username,
-      email: lowercasedEmail, // Store lowercase email
+      email: lowercasedEmail, 
       passwordDigest,
     });
 
@@ -50,9 +50,9 @@ const Login = async (req, res) => {
       return res.status(400).send({ error: 'Email and password are required!' });
     }
 
-    const lowercasedEmail = email.toLowerCase(); // Convert email to lowercase
+    const lowercasedEmail = email.toLowerCase(); 
 
-    const user = await User.findOne({ email: lowercasedEmail }); // Query with lowercase email
+    const user = await User.findOne({ email: lowercasedEmail });
     if (!user) {
       return res.status(401).send({ error: 'Invalid email or password' });
     }
