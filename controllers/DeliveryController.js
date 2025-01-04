@@ -36,18 +36,25 @@ const GetDeliveriesBySubscription = async (req, res) => {
 // Fetch deliveries for a specific user
 const GetUserDeliveries = async (req, res) => {
   try {
-    const deliveries = await Delivery.find({}).populate({
-      path: 'subscription',
-      match: { user: req.params.userId },
-      populate: { path: 'mealPlan', select: 'name' }
-    })
-    // Filter out any deliveries where subscription didn't match the user
-    const filtered = deliveries.filter((d) => d.subscription !== null)
-    res.send(filtered)
+    const deliveries = await Delivery.find({})
+      .populate({
+        path: 'subscription', 
+        match: { user: req.params.userId },
+        populate: {
+          path: 'mealPlans',
+          select: 'name description',
+        },
+      });
+    const filteredDeliveries = deliveries.filter(
+      (delivery) => delivery.subscription !== null
+    );
+    res.json(filteredDeliveries);
   } catch (error) {
-    handleError(res, error, 'Error fetching user deliveries')
+    console.error('Error fetching user deliveries:', error);
+    res.status(500).json({ error: 'Failed to fetch user deliveries' });
   }
-}
+};
+
 
 // Assign meals to a delivery (Admin only)
 const AssignMeals = async (req, res) => {
@@ -113,6 +120,22 @@ const CreateDelivery = async (req, res) => {
   }
 }
 
+// Update a delivery (Admin only)
+const UpdateDelivery = async (req, res) => {
+  try {
+    const { deliveryId } = req.params;
+    const updatedData = req.body;
+
+    const updatedDelivery = await Delivery.findByIdAndUpdate(deliveryId, updatedData, { new: true });
+    if (!updatedDelivery) {
+      return res.status(404).send({ error: 'Delivery not found' });
+    }
+    res.send({ message: 'Delivery updated successfully', delivery: updatedDelivery });
+  } catch (error) {
+    handleError(res, error, 'Error updating delivery');
+  }
+};
+
 // Delete a delivery (Admin only)
 const DeleteDelivery = async (req, res) => {
   try {
@@ -137,5 +160,6 @@ module.exports = {
   AssignMeals,
   UpdateDeliveryStatus,
   CreateDelivery,
+  UpdateDelivery,
   DeleteDelivery
 }
