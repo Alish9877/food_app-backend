@@ -25,11 +25,7 @@ const stripToken = (req, res, next) => {
     if (!token) {
       throw new Error('No token provided')
     }
-    console.log(" Stripped token ",token);
-    
     res.locals.token = token
-    console.log(" res.locals.token ",res.locals.token);
-    
     next()
   } catch (error) {
     console.error('Error in stripToken:', error.message)
@@ -44,10 +40,8 @@ const verifyToken = (req, res, next) => {
     if (payload.serverId !== serverId) {
       throw new Error('Invalid session due to server restart')
     }
-    console.log('Decoded Payload:', payload);
     res.locals.payload = payload
     req.user = payload
-    console.log('req.user:', req.user);
     next()
   } catch (error) {
     console.error('Error in verifyToken:', error.message)
@@ -64,26 +58,11 @@ const isAdmin = (req, res, next) => {
   res.status(403).send({ status: 'Error', msg: 'Admin access only' })
 }
 
-// Middleware: Standard Authorization Middleware
-const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1]
-  if (!token) return res.status(401).send({ error: 'Unauthorized' })
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    req.user = { _id: decoded.id }
-    next()
-  } catch (error) {
-    res.status(401).send({ error: 'Unauthorized' })
-  }
-}
-
 module.exports = {
   hashPassword,
   comparePassword,
   createToken,
   stripToken,
   verifyToken,
-  isAdmin,
-  authMiddleware 
+  isAdmin
 }

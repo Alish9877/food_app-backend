@@ -1,4 +1,4 @@
-const { Subscription, MealPlan } = require('../models')
+const { Subscription, MealPlan, Delivery } = require('../models')
 const mongoose = require('mongoose')
 
 const handleError = (res, error, message = 'Server error', status = 500) => {
@@ -32,6 +32,7 @@ const GetUserSubscriptions = async (req, res) => {
 
 // Create a new subscription
 const CreateSubscription = async (req, res) => {
+
   try {
     const {
       startDate,
@@ -41,7 +42,8 @@ const CreateSubscription = async (req, res) => {
       price,
       duration,
       mealsPerDay,
-      preferences
+      preferences,
+      deliveries
     } = req.body
 
     // Validation Helper Functions
@@ -86,7 +88,7 @@ const CreateSubscription = async (req, res) => {
       }
 
       if (!req.user || !req.user.id) {
-        throw { status: 401, message: 'User not authenticated' }
+        throw { status: 401, message: 'User not authenticated.' }
       }
     }
 
@@ -120,11 +122,39 @@ const CreateSubscription = async (req, res) => {
 
     // Create subscription
     const subscription = await Subscription.create(subscriptionData)
+
+    // Create associated deliveries
+    if (deliveries && Array.isArray(deliveries)) {
+      const deliveryPromises = deliveries.map((delivery) => {
+        const { deliveryDate, location, meals } = delivery
+
+        // Validate delivery fields
+        if (
+          !deliveryDate ||
+          !location ||
+          !Array.isArray(meals) ||
+          meals.length === 0
+        ) {
+          throw new Error(`Invalid delivery data: ${JSON.stringify(delivery)}`)
+        }
+
+        return Delivery.create({
+          ...delivery,
+          _id: mongoose.Types.ObjectId.isValid(delivery._id)
+            ? new mongoose.Types.ObjectId(delivery._id)
+            : new mongoose.Types.ObjectId(), // Generate a new ObjectId if invalid
+          subscription: subscription._id
+        })
+      })
+
+      await Promise.all(deliveryPromises)
+    }
+
     res.status(201).send(subscription)
   } catch (error) {
     console.error('Error in CreateSubscription:', error)
     const status = error.status || 500
-    const message = error.message || 'Error creating subscription'
+    const message = error.message || 'Error creating subscription.'
     res.status(status).send({ error: message })
   }
 }
