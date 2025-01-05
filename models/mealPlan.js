@@ -6,9 +6,15 @@ const mealPlanSchema = new Schema(
     description: { type: String, required: true, minlength: 10 },
     dishes: { type: [String], required: true },
     price: { type: Number, required: true },
-    source: { type: String, default: 'local' }, 
+    customPrice: { type: Number, default: null },
+    source: { type: String, default: 'local' },
     category: { type: String },
     externalId: { type: String, default: null },
+    image: {
+      url: { type: String, default: null }, 
+      data: { type: Buffer },
+      contentType: { type: String },
+    }
   },
   { timestamps: true }
 )

@@ -55,6 +55,15 @@ router.put(
   DeliveryController.UpdateDeliveryStatus
 )
 
+// Update a delivery (Admin only)
+router.put(
+  '/:deliveryId',
+  middleware.stripToken,
+  middleware.verifyToken,
+  middleware.isAdmin,
+  DeliveryController.UpdateDelivery
+)
+
 // Delete a delivery (Admin only)
 router.delete(
   '/:deliveryId',

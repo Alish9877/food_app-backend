@@ -8,10 +8,19 @@ const userSchema = new Schema(
       required: true,
       unique: true,
       match: [/.+@.+\..+/, 'Please enter a valid email address'],
-      lowercase: true,
+      lowercase: true
     },
     passwordDigest: { type: String, required: true },
-    role: { type: String, enum: ['Admin', 'Subscriber'], default: 'Subscriber' }
+    role: {
+      type: String,
+      enum: ['Admin', 'Subscriber'],
+      default: 'Subscriber'
+    },
+    profileImage: {
+      data: Buffer,
+      contentType: String,
+      url: { type: String, default: null }
+    }
   },
   { timestamps: true }
 )
