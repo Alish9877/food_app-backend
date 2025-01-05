@@ -1,4 +1,4 @@
-# TickPick
+# MealMate
 
 ## Background
 
