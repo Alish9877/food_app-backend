@@ -98,7 +98,7 @@ _After the user add the subscription info , it will show to the user Delivery Pa
 
 _After the user add the subscription info , it will show to the user DashBoard Page, which is summary of the subscription:_
 
-![Address](./photos/userDash.png.png)
+![Address](./photos/userDash.png)
 
 **Profile page:**
 
