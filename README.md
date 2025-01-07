@@ -54,25 +54,19 @@ Entity relationship diagrams (ERDs) are a way to describe the data that will be 
 
 **First page:**
 
-![First page]()
-
-**Second page:**
-
-_if the user sign in or sign up it will sow to the user this page:_
-
-![Second page]()
+![First page](./photos/Page1.png)
 
 **Sign up:**
 
 _To Create new account page:_
 
-![Create new account page]()
+![Create new account page](./photos/signup.png)
 
 > Note: if the user click on sign up it will show the user this page.
 
 **Sign in:**
 
-![sign in]()
+![sign in](./photos/Page2.png)
 
 > Note: if the user click on sign in it will show the user this page.
 
@@ -80,29 +74,38 @@ _To Create new account page:_
 
 _Here is the Home Page:_
 
-![Home page]()
+![Home page](./photos/Page3.png)
 
 **List of the Melas:**
 
 _After the user select the mealPlan button , it will show to the user the list of Meals:_
 
-![List of the Meals]()
+![List of the Meals](./photos/mealplan.png)
 
 **Subscription Page:**
 
 _After the user select on of the Meals and continue ,  it will show to the user Subscription Page:_
 
-![Subscription Info]()
+![Subscription Info](./photos/subscription.png)
 
 **Delivery Page:**
 
 _After the user add the subscription info , it will show to the user Delivery Page:_
 
-![Address]()
+![Address](./photos/delivery.png)
+
+**DashBoard Page:**
+
+_After the user add the subscription info , it will show to the user DashBoard Page, which is summary of the subscription:_
+
+![Address](./photos/userDash.png.png)
 
 **Profile page:**
 
-![profile page]()
+_here the Account Setting Page, the user can edit his informartion as need:_
+
+![profile page](./photos/accSet.png)
+
 
 # Tello
 
